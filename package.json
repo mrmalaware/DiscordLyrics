@@ -1,0 +1,31 @@
+{
+  "name": "discordlyrics",
+  "version": "1.0.0",
+  "description": "A dark celestial Spotify lyrics status plugin for BetterDiscord and Vencord.",
+  "private": true,
+  "author": "MallyDev / MrMalaware",
+  "license": "MIT",
+  "homepage": "https://github.com/MallyDev2/DiscordLyrics#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MallyDev2/DiscordLyrics.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MallyDev2/DiscordLyrics/issues"
+  },
+  "keywords": [
+    "betterdiscord",
+    "vencord",
+    "discord",
+    "spotify",
+    "lyrics",
+    "status",
+    "plugin"
+  ],
+  "scripts": {
+    "check": "node --check SpotifyLyricsStatus.plugin.js",
+    "build": "node scripts/build-release.js",
+    "release:pack": "npm run check && npm run build"
+  },
+  "devDependencies": {}
+}

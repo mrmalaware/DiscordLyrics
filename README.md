@@ -67,6 +67,15 @@ If synced lyrics are not found, the plugin uses:
 Song - Artist
 ```
 
+## Project Scripts
+
+```bash
+npm run check
+npm run build
+```
+
+`npm run build` refreshes the release files in `dist/` for both BetterDiscord and Vencord.
+
 ## Notes
 
 - Spotify must be connected to Discord for track detection.
