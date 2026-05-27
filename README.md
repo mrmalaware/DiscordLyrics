@@ -14,6 +14,7 @@
   <a href="https://github.com/MallyDev2/DiscordLyrics/releases/latest/download/SpotifyLyricsStatus.plugin.js"><img alt="Download BetterDiscord" src="https://img.shields.io/badge/Download-BetterDiscord-ffffff?style=for-the-badge&labelColor=101014&color=5865f2"></a>
   <a href="https://github.com/MallyDev2/DiscordLyrics/releases/latest/download/vencord-spotifyLyricsStatus.zip"><img alt="Download Vencord" src="https://img.shields.io/badge/Download-Vencord-ffffff?style=for-the-badge&labelColor=101014&color=b9c9ff"></a>
   <a href="https://github.com/MallyDev2/DiscordLyrics/releases/latest/download/DiscordLyrics-release.zip"><img alt="Download full package" src="https://img.shields.io/badge/Download-Full_Package-101014?style=for-the-badge&labelColor=f4ead8&color=d7b982"></a>
+  <a href="https://github.com/MallyDev2/DiscordLyrics/pkgs/npm/discordlyrics"><img alt="GitHub Package" src="https://img.shields.io/badge/GitHub-Package-ffffff?style=for-the-badge&labelColor=101014&color=d7b982"></a>
   <img alt="Spotify lyrics" src="https://img.shields.io/badge/Spotify-Lyrics-ffffff?style=for-the-badge&labelColor=101014&color=1db954">
 </p>
 
@@ -83,7 +84,17 @@ Song - Artist
 
 ## Project Package
 
-This repo includes a lightweight package workflow so releases can be rebuilt from source.
+DiscordLyrics is also published as a GitHub npm package for clean version tracking and repo package visibility.
+
+```bash
+npm install @mallydev2/discordlyrics --registry=https://npm.pkg.github.com
+```
+
+The package includes the BetterDiscord plugin, the Vencord userplugin source, and release artifacts.
+
+## Build From Source
+
+This repo includes a lightweight build workflow so releases can be rebuilt locally.
 
 ```bash
 npm install

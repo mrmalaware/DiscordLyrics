@@ -1,8 +1,8 @@
 {
-  "name": "discordlyrics",
+  "name": "@mallydev2/discordlyrics",
   "version": "1.0.1",
   "description": "A polished Spotify lyrics status plugin for BetterDiscord and Vencord.",
-  "private": true,
+  "private": false,
   "author": "MallyDev2",
   "license": "MIT",
   "homepage": "https://github.com/MallyDev2/DiscordLyrics#readme",
@@ -27,5 +27,20 @@
     "build": "node scripts/build-release.js",
     "release:pack": "npm run check && npm run build"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
+  "files": [
+    "SpotifyLyricsStatus.plugin.js",
+    "vencord-userplugin/",
+    "dist/SpotifyLyricsStatus.plugin.js",
+    "dist/vencord-spotifyLyricsStatus.zip",
+    "dist/DiscordLyrics-release.zip",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md"
+  ],
   "devDependencies": {}
 }
