@@ -1,9 +1,9 @@
 {
   "name": "discordlyrics",
   "version": "1.0.0",
-  "description": "A dark celestial Spotify lyrics status plugin for BetterDiscord and Vencord.",
+  "description": "A polished Spotify lyrics status plugin for BetterDiscord and Vencord.",
   "private": true,
-  "author": "MallyDev / MrMalaware",
+  "author": "MallyDev2",
   "license": "MIT",
   "homepage": "https://github.com/MallyDev2/DiscordLyrics#readme",
   "repository": {
