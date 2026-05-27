@@ -1,0 +1,19 @@
+<svg width="1280" height="420" viewBox="0 0 1280 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DiscordLyrics">
+  <rect width="1280" height="420" rx="30" fill="#080b13"/>
+  <path d="M0 296C142 220 242 320 410 242C557 174 632 56 823 91C1004 124 1088 252 1280 172V420H0V296Z" fill="#132139"/>
+  <path d="M0 332C164 269 280 330 424 282C605 222 718 155 899 188C1055 217 1136 295 1280 248V420H0V332Z" fill="#1d3154"/>
+  <circle cx="1050" cy="140" r="118" fill="#5865f2" fill-opacity=".18"/>
+  <circle cx="1050" cy="140" r="72" fill="#1db954" fill-opacity=".22"/>
+  <path d="M1039 93V184C1039 203 1023 218 1004 218C986 218 971 205 971 188C971 171 986 158 1004 158C1014 158 1023 162 1029 168V93H1039Z" fill="#1db954"/>
+  <path d="M1117 74V165C1117 184 1101 199 1082 199C1064 199 1049 186 1049 169C1049 152 1064 139 1082 139C1092 139 1101 143 1107 149V74H1117Z" fill="#5865f2"/>
+  <text x="70" y="132" fill="#aeb8ff" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" letter-spacing="5">DISCORDLYRICS</text>
+  <rect x="70" y="150" width="190" height="7" rx="3.5" fill="#5865f2"/>
+  <text x="70" y="224" fill="#f8fbff" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="64" font-weight="900">Spotify lyrics in your status</text>
+  <text x="74" y="286" fill="#c6d2ee" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="30">BetterDiscord and Vencord builds</text>
+  <g opacity=".8">
+    <rect x="72" y="322" width="170" height="44" rx="22" fill="#5865f2"/>
+    <text x="104" y="351" fill="#ffffff" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="800">LIVE LYRICS</text>
+    <rect x="262" y="322" width="152" height="44" rx="22" fill="#1db954"/>
+    <text x="295" y="351" fill="#07130d" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="900">SPOTIFY</text>
+  </g>
+</svg>
