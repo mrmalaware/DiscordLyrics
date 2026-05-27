@@ -119,6 +119,20 @@ DiscordLyrics/
   assets/
 ```
 
+## Social Preview
+
+The repository includes a GitHub-ready preview image at:
+
+```text
+assets/social-preview.jpg
+```
+
+Use that image in the repository social preview setting so links shared to Discord show the DiscordLyrics banner.
+
+## Wiki
+
+Wiki source pages are mirrored in `docs/wiki/` so project docs stay versioned with the repo.
+
 ## Troubleshooting
 
 | Issue | Fix |
