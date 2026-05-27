@@ -151,6 +151,12 @@ Wiki source pages are mirrored in `docs/wiki/` so project docs stay versioned wi
 | Spotify activity | Required |
 | LRCLIB synced lyrics | Used when available |
 
+## Support
+
+If DiscordLyrics helps you, you can support MallyDev2 through GitHub Sponsors:
+
+https://github.com/sponsors/MallyDev2
+
 ## License
 
 Released under the [MIT License](LICENSE).
