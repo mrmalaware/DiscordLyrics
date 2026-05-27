@@ -1,19 +1,53 @@
-<svg width="1280" height="420" viewBox="0 0 1280 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DiscordLyrics">
-  <rect width="1280" height="420" rx="30" fill="#080b13"/>
-  <path d="M0 296C142 220 242 320 410 242C557 174 632 56 823 91C1004 124 1088 252 1280 172V420H0V296Z" fill="#132139"/>
-  <path d="M0 332C164 269 280 330 424 282C605 222 718 155 899 188C1055 217 1136 295 1280 248V420H0V332Z" fill="#1d3154"/>
-  <circle cx="1050" cy="140" r="118" fill="#5865f2" fill-opacity=".18"/>
-  <circle cx="1050" cy="140" r="72" fill="#1db954" fill-opacity=".22"/>
-  <path d="M1039 93V184C1039 203 1023 218 1004 218C986 218 971 205 971 188C971 171 986 158 1004 158C1014 158 1023 162 1029 168V93H1039Z" fill="#1db954"/>
-  <path d="M1117 74V165C1117 184 1101 199 1082 199C1064 199 1049 186 1049 169C1049 152 1064 139 1082 139C1092 139 1101 143 1107 149V74H1117Z" fill="#5865f2"/>
-  <text x="70" y="132" fill="#aeb8ff" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" letter-spacing="5">DISCORDLYRICS</text>
-  <rect x="70" y="150" width="190" height="7" rx="3.5" fill="#5865f2"/>
-  <text x="70" y="224" fill="#f8fbff" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="64" font-weight="900">Spotify lyrics in your status</text>
-  <text x="74" y="286" fill="#c6d2ee" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="30">BetterDiscord and Vencord builds</text>
-  <g opacity=".8">
-    <rect x="72" y="322" width="170" height="44" rx="22" fill="#5865f2"/>
-    <text x="104" y="351" fill="#ffffff" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="800">LIVE LYRICS</text>
-    <rect x="262" y="322" width="152" height="44" rx="22" fill="#1db954"/>
-    <text x="295" y="351" fill="#07130d" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="900">SPOTIFY</text>
+<svg width="1280" height="420" viewBox="0 0 1280 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DiscordLyrics by MallyDev and MrMalaware">
+  <defs>
+    <radialGradient id="halo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(940 134) rotate(90) scale(150)">
+      <stop stop-color="#f8fbff" stop-opacity=".42"/>
+      <stop offset=".42" stop-color="#9ccfff" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#05070c" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wing" x1="744" y1="102" x2="1174" y2="328" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff"/>
+      <stop offset=".48" stop-color="#cbd8ea"/>
+      <stop offset="1" stop-color="#6b7d94"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="72" y1="114" x2="460" y2="340" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff"/>
+      <stop offset=".55" stop-color="#b9d9ff"/>
+      <stop offset="1" stop-color="#37a8ff"/>
+    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-40%" width="140%" height="180%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="#53b9ff" flood-opacity=".45"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="420" rx="30" fill="#05070c"/>
+  <path d="M0 292C118 218 235 329 405 245C574 161 658 44 827 78C1017 116 1090 267 1280 178V420H0V292Z" fill="#0a1724"/>
+  <path d="M0 337C160 272 281 335 433 282C615 218 736 168 908 194C1052 216 1146 291 1280 248V420H0V337Z" fill="#101f31"/>
+  <circle cx="940" cy="134" r="150" fill="url(#halo)"/>
+
+  <g opacity=".6">
+    <path d="M196 72L206 100L235 110L206 120L196 148L186 120L157 110L186 100L196 72Z" fill="#dbeeff"/>
+    <path d="M1126 248L1135 273L1161 282L1135 291L1126 316L1117 291L1091 282L1117 273L1126 248Z" fill="#9ccfff"/>
+    <path d="M668 60L675 80L696 87L675 94L668 114L661 94L640 87L661 80L668 60Z" fill="#ffffff"/>
+  </g>
+
+  <g transform="translate(728 78)" filter="url(#softGlow)">
+    <ellipse cx="214" cy="52" rx="70" ry="18" stroke="#dbeeff" stroke-width="8"/>
+    <path d="M195 96C146 70 81 69 19 100C82 103 131 120 166 149C113 130 67 133 28 159C91 164 140 183 174 214C126 202 87 210 55 239C122 238 177 252 221 281C244 242 255 202 252 161C249 127 231 109 195 96Z" fill="url(#wing)" opacity=".9"/>
+    <path d="M241 94C290 69 356 70 417 101C354 103 305 120 270 149C323 130 369 133 408 159C345 164 296 183 262 214C310 202 349 210 381 239C314 238 259 252 215 281C192 242 181 202 184 161C187 126 205 109 241 94Z" fill="url(#wing)" opacity=".86"/>
+    <path d="M218 72C236 105 248 143 254 187C260 229 248 270 218 311C188 270 176 229 182 187C188 143 200 105 218 72Z" fill="#f8fbff"/>
+  </g>
+
+  <text x="72" y="90" fill="#a8cfff" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" letter-spacing="5">MALLYDEV / MRMALAWARE</text>
+  <rect x="72" y="106" width="254" height="6" rx="3" fill="#37a8ff"/>
+  <text x="72" y="190" fill="url(#blue)" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="72" font-weight="950">DiscordLyrics</text>
+  <text x="76" y="252" fill="#dbe7f7" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="30">Spotify lyrics, carried into Discord status.</text>
+  <text x="76" y="304" fill="#8ea2bd" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="4">BETTERDISCORD - VENCORD - LRCLIB</text>
+
+  <g transform="translate(74 334)">
+    <rect width="170" height="44" rx="22" fill="#ffffff" fill-opacity=".08" stroke="#ffffff" stroke-opacity=".18"/>
+    <text x="31" y="29" fill="#f8fbff" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="17" font-weight="900">LIVE LYRICS</text>
+    <rect x="188" width="166" height="44" rx="22" fill="#37a8ff" fill-opacity=".18" stroke="#37a8ff" stroke-opacity=".5"/>
+    <text x="220" y="29" fill="#cfe9ff" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="17" font-weight="900">STATUS SYNC</text>
   </g>
 </svg>
