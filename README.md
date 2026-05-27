@@ -13,6 +13,7 @@
   <a href="https://github.com/MallyDev2/DiscordLyrics/actions"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/MallyDev2/DiscordLyrics/ci.yml?style=for-the-badge&label=build&labelColor=101014&color=9ec7ff"></a>
   <a href="https://github.com/MallyDev2/DiscordLyrics/releases/latest/download/SpotifyLyricsStatus.plugin.js"><img alt="Download BetterDiscord" src="https://img.shields.io/badge/Download-BetterDiscord-ffffff?style=for-the-badge&labelColor=101014&color=5865f2"></a>
   <a href="https://github.com/MallyDev2/DiscordLyrics/releases/latest/download/vencord-spotifyLyricsStatus.zip"><img alt="Download Vencord" src="https://img.shields.io/badge/Download-Vencord-ffffff?style=for-the-badge&labelColor=101014&color=b9c9ff"></a>
+  <a href="https://github.com/MallyDev2/DiscordLyrics/releases/latest/download/DiscordLyrics-release.zip"><img alt="Download full package" src="https://img.shields.io/badge/Download-Full_Package-101014?style=for-the-badge&labelColor=f4ead8&color=d7b982"></a>
   <img alt="Spotify lyrics" src="https://img.shields.io/badge/Spotify-Lyrics-ffffff?style=for-the-badge&labelColor=101014&color=1db954">
 </p>
 
@@ -34,6 +35,7 @@ DiscordLyrics syncs Spotify playback into your Discord custom status. When synce
 | --- | --- | --- |
 | BetterDiscord | [SpotifyLyricsStatus.plugin.js](https://github.com/MallyDev2/DiscordLyrics/releases/latest/download/SpotifyLyricsStatus.plugin.js) | Place the file in your BetterDiscord plugins folder. |
 | Vencord | [vencord-spotifyLyricsStatus.zip](https://github.com/MallyDev2/DiscordLyrics/releases/latest/download/vencord-spotifyLyricsStatus.zip) | Extract `spotifyLyricsStatus` into `Vencord/src/userplugins/`, then rebuild Vencord. |
+| Complete package | [DiscordLyrics-release.zip](https://github.com/MallyDev2/DiscordLyrics/releases/latest/download/DiscordLyrics-release.zip) | Includes both client builds, README, license, and changelog. |
 
 ## BetterDiscord Setup
 
@@ -93,7 +95,7 @@ npm run build
 | --- | --- |
 | `npm run check` | Validates the BetterDiscord plugin syntax. |
 | `npm run build` | Rebuilds the BetterDiscord and Vencord release files in `dist/`. |
-| `npm run release:pack` | Runs validation, then rebuilds release artifacts. |
+| `npm run release:pack` | Runs validation, then rebuilds all release artifacts, including the full package zip. |
 
 ## Repository Layout
 

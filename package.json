@@ -1,6 +1,6 @@
 {
   "name": "discordlyrics",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A polished Spotify lyrics status plugin for BetterDiscord and Vencord.",
   "private": true,
   "author": "MallyDev2",

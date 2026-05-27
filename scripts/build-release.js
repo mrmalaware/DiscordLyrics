@@ -6,6 +6,7 @@ const root = path.resolve(__dirname, "..");
 const dist = path.join(root, "dist");
 const vencordSource = path.join(root, "vencord-userplugin", "spotifyLyricsStatus");
 const vencordDist = path.join(dist, "vencord", "spotifyLyricsStatus");
+const packageDir = path.join(dist, "package");
 
 function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
@@ -132,5 +133,12 @@ ensureDir(dist);
 copyFile(path.join(root, "SpotifyLyricsStatus.plugin.js"), path.join(dist, "SpotifyLyricsStatus.plugin.js"));
 copyDir(vencordSource, vencordDist);
 createZip(path.join(dist, "vencord"), path.join(dist, "vencord-spotifyLyricsStatus.zip"));
+ensureDir(packageDir);
+copyFile(path.join(dist, "SpotifyLyricsStatus.plugin.js"), path.join(packageDir, "BetterDiscord", "SpotifyLyricsStatus.plugin.js"));
+copyFile(path.join(dist, "vencord-spotifyLyricsStatus.zip"), path.join(packageDir, "Vencord", "vencord-spotifyLyricsStatus.zip"));
+copyFile(path.join(root, "README.md"), path.join(packageDir, "README.md"));
+copyFile(path.join(root, "LICENSE"), path.join(packageDir, "LICENSE"));
+copyFile(path.join(root, "CHANGELOG.md"), path.join(packageDir, "CHANGELOG.md"));
+createZip(packageDir, path.join(dist, "DiscordLyrics-release.zip"));
 
 console.log("Release package ready in dist/");
