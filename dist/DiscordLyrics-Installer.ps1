@@ -1,8 +1,9 @@
 param(
-    [ValidateSet("Auto", "BetterDiscord", "Vencord")]
+    [ValidateSet("Auto", "BetterDiscord", "Vencord", "Equicord", "Dorian")]
     [string]$Target = "Auto",
     [string]$SourcePath = "",
-    [switch]$SkipBuild
+    [switch]$SkipBuild,
+    [switch]$Inject
 )
 
 $ErrorActionPreference = "Stop"
@@ -90,14 +91,121 @@ function Install-BetterDiscord {
     Write-Ok "Installed BetterDiscord plugin"
 }
 
+function Select-InstallTarget {
+    Write-Host ""
+    Write-Host "Install mode:" -ForegroundColor Cyan
+    Write-Host "[1] Auto-detect installed client"
+    Write-Host "[2] Choose manually"
+    Write-Host ""
+
+    $ModeChoice = Read-Host "Enter 1 or 2"
+    switch ($ModeChoice.Trim()) {
+        "1" {
+            $Detected = Get-AutoDetectedClient
+            if ($Detected) {
+                Write-Ok "Auto-detected $($Detected.Name)"
+                return $Detected.Name
+            }
+
+            Write-Warn "Auto-detect did not find one clear source client."
+            return Select-ManualInstallTarget
+        }
+        "2" { return Select-ManualInstallTarget }
+        default { throw "Invalid install mode. Run the installer again and choose 1 or 2." }
+    }
+}
+
+function Select-ManualInstallTarget {
+    Write-Host ""
+    Write-Host "Choose your Discord client:" -ForegroundColor Cyan
+    Write-Host "[1] Vencord"
+    Write-Host "[2] Equicord"
+    Write-Host "[3] Dorian"
+    Write-Host "[4] BetterDiscord"
+    Write-Host ""
+
+    $Choice = Read-Host "Enter 1, 2, 3, or 4"
+    switch ($Choice.Trim()) {
+        "1" { return "Vencord" }
+        "2" { return "Equicord" }
+        "3" { return "Dorian" }
+        "4" { return "BetterDiscord" }
+        default { throw "Invalid client selection. Run the installer again and choose 1, 2, 3, or 4." }
+    }
+}
+
+function Get-InstalledClientInfo {
+    param([string]$ClientName)
+
+    $DataDir = Get-ClientDataDir -ClientName $ClientName
+    $SettingsFile = Join-Path $DataDir "settings\settings.json"
+    $DistDir = Join-Path $DataDir "dist"
+    $AsarFile = Join-Path $DataDir "$($ClientName.ToLowerInvariant()).asar"
+
+    if ((Test-Path $SettingsFile) -or (Test-Path $DistDir) -or (Test-Path $AsarFile)) {
+        $Newest = @($SettingsFile, $DistDir, $AsarFile) |
+            Where-Object { Test-Path $_ } |
+            ForEach-Object { Get-Item $_ } |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+
+        return [pscustomobject]@{
+            Name = $ClientName
+            DataDir = $DataDir
+            LastWriteTime = $Newest.LastWriteTime
+        }
+    }
+
+    $null
+}
+
+function Get-AutoDetectedClient {
+    $Names = @("Vencord", "Equicord", "Dorian")
+    $Matches = New-Object System.Collections.Generic.List[object]
+
+    foreach ($Name in $Names) {
+        $Installed = Get-InstalledClientInfo -ClientName $Name
+        $Sources = @(Get-SourceCandidates -ClientName $Name)
+
+        if ($Installed -and $Sources.Count -eq 1) {
+            $Matches.Add([pscustomobject]@{
+                Name = $Name
+                SourcePath = $Sources[0]
+                LastWriteTime = $Installed.LastWriteTime
+            })
+        }
+    }
+
+    if ($Matches.Count -eq 1) {
+        return $Matches[0]
+    }
+
+    if ($Matches.Count -gt 1) {
+        Write-Warn "Auto-detect found multiple possible clients."
+        $Matches |
+            Sort-Object LastWriteTime -Descending |
+            ForEach-Object { Write-Warn "$($_.Name): $($_.SourcePath)" }
+    }
+
+    $null
+}
+
+function Get-ClientDataDir {
+    param([string]$ClientName)
+
+    Join-Path $env:APPDATA $ClientName
+}
+
 function Get-SourceCandidates {
+    param([string]$ClientName = "")
+
     $Roots = @(
         (Join-Path $env:USERPROFILE "Documents"),
         (Join-Path $env:USERPROFILE "Desktop"),
         $env:USERPROFILE
     ) | Where-Object { $_ -and (Test-Path $_) }
 
-    $Names = @("Vencord", "Equicord", "Dorian")
+    $Names = if ($ClientName) { @($ClientName) } else { @("Vencord", "Equicord", "Dorian") }
     $Candidates = New-Object System.Collections.Generic.List[string]
 
     foreach ($Root in $Roots) {
@@ -113,11 +221,38 @@ function Get-SourceCandidates {
 }
 
 function Select-SourcePath {
+    param([string]$ClientName)
+
     if ($SourcePath) {
         if (!(Test-Path (Join-Path $SourcePath "package.json"))) {
             throw "SourcePath must point to a Vencord, Equicord, or Dorian source folder with package.json."
         }
         return (Resolve-Path $SourcePath).Path
+    }
+
+    if ($ClientName) {
+        Write-Ok "Selected Discord mod: $ClientName"
+        $MatchingCandidates = @(Get-SourceCandidates -ClientName $ClientName)
+
+        if ($MatchingCandidates.Count -eq 1) {
+            Write-Ok "Using matching source client: $($MatchingCandidates[0])"
+            return $MatchingCandidates[0]
+        }
+
+        if ($MatchingCandidates.Count -gt 1) {
+            Write-Host ""
+            Write-Host "Detected matching $ClientName source folders:" -ForegroundColor Cyan
+            for ($i = 0; $i -lt $MatchingCandidates.Count; $i++) {
+                Write-Host "[$($i + 1)] $($MatchingCandidates[$i])"
+            }
+            $Choice = Read-Host "Choose the source folder for $ClientName"
+            $Index = [int]$Choice - 1
+            if ($Index -ge 0 -and $Index -lt $MatchingCandidates.Count) {
+                return $MatchingCandidates[$Index]
+            }
+        }
+
+        Write-Warn "No matching $ClientName source folder was found automatically."
     }
 
     $Candidates = @(Get-SourceCandidates)
@@ -147,12 +282,15 @@ function Select-SourcePath {
 }
 
 function Install-SourceClient {
+    param([string]$ClientName)
+
     Ensure-Pnpm
 
-    $ClientRoot = Select-SourcePath
+    $ClientRoot = Select-SourcePath -ClientName $ClientName
     $PluginZip = Join-Path $PackageDir "Vencord\vencord-spotifyLyricsStatus.zip"
     $UserPlugins = Join-Path $ClientRoot "src\userplugins"
     $PluginDir = Join-Path $UserPlugins "spotifyLyricsStatus"
+    $ClientDataDir = Get-ClientDataDir -ClientName $ClientName
 
     if (!(Test-Path $PluginZip)) {
         throw "Vencord userplugin zip was not found in the release package."
@@ -189,13 +327,32 @@ function Install-SourceClient {
     Push-Location $ClientRoot
     try {
         Write-Step "Building client"
-        pnpm install
+        if (!(Test-Path (Join-Path $ClientRoot "node_modules"))) {
+            Write-Step "Installing client dependencies"
+            pnpm install --frozen-lockfile
+        } else {
+            Write-Ok "Client dependencies already installed"
+        }
+
         pnpm build
 
+        if (Test-Path (Join-Path $ClientRoot "dist")) {
+            $ActiveDist = Join-Path $ClientDataDir "dist"
+            New-Item -ItemType Directory -Force $ActiveDist | Out-Null
+            Copy-Item (Join-Path $ClientRoot "dist\*") $ActiveDist -Recurse -Force
+            Write-Ok "Updated $ClientName build at $ActiveDist"
+        } else {
+            Write-Warn "Client build completed, but no dist folder was found to copy into $ClientDataDir."
+        }
+
         $PackageJson = Get-Content "package.json" -Raw
-        if ($PackageJson -match '"inject"\s*:') {
+        $CanInject = $PackageJson -match '"inject"\s*:'
+        if ($Inject -and $CanInject) {
             Write-Step "Injecting client"
             pnpm inject
+        } elseif ($CanInject) {
+            Write-Warn "Build complete. Injection skipped so no extra client installer tools are downloaded."
+            Write-Warn "If this client needs injection, run it from the client source folder yourself: pnpm inject"
         } else {
             Write-Warn "No inject script found. Reinstall or inject this client the normal way."
         }
@@ -207,20 +364,16 @@ function Install-SourceClient {
 Reset-WorkDir
 Download-Release
 
-if ($Target -eq "Auto" -or $Target -eq "BetterDiscord") {
-    if (Test-Path (Join-Path $env:APPDATA "BetterDiscord")) {
-        Write-Step "Installing BetterDiscord"
-        Install-BetterDiscord
-    } elseif ($Target -eq "BetterDiscord") {
-        Install-BetterDiscord
-    } else {
-        Write-Warn "BetterDiscord folder was not found"
-    }
+$SelectedTarget = if ($Target -eq "Auto") { Select-InstallTarget } else { $Target }
+
+if ($SelectedTarget -eq "BetterDiscord") {
+    Write-Step "Installing BetterDiscord"
+    Install-BetterDiscord
 }
 
-if ($Target -eq "Auto" -or $Target -eq "Vencord") {
-    Write-Step "Installing source client plugin"
-    Install-SourceClient
+if ($SelectedTarget -in @("Vencord", "Equicord", "Dorian")) {
+    Write-Step "Installing $SelectedTarget source plugin"
+    Install-SourceClient -ClientName $SelectedTarget
 }
 
 Write-Host ""
