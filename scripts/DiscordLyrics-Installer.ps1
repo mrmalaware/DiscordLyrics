@@ -27,6 +27,20 @@ function Write-Warn($Text) {
     Write-Host "   $Text" -ForegroundColor Yellow
 }
 
+function Invoke-CheckedCommand {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Command,
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [string[]]$Arguments
+    )
+
+    & $Command @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "$Command $($Arguments -join ' ') failed with exit code $LASTEXITCODE."
+    }
+}
+
 function Reset-WorkDir {
     if (Test-Path $WorkDir) {
         Remove-Item $WorkDir -Recurse -Force
@@ -44,8 +58,8 @@ function Ensure-Pnpm {
 
     if (Get-Command corepack -ErrorAction SilentlyContinue) {
         Write-Step "Installing pnpm with Corepack"
-        corepack enable
-        corepack prepare pnpm@latest --activate
+        Invoke-CheckedCommand corepack enable
+        Invoke-CheckedCommand corepack prepare pnpm@latest --activate
         if (Get-Command pnpm -ErrorAction SilentlyContinue) {
             Write-Ok "pnpm installed"
             return
@@ -54,7 +68,7 @@ function Ensure-Pnpm {
 
     if (Get-Command npm -ErrorAction SilentlyContinue) {
         Write-Step "Installing pnpm with npm"
-        npm install -g pnpm
+        Invoke-CheckedCommand npm install -g pnpm
         if (Get-Command pnpm -ErrorAction SilentlyContinue) {
             Write-Ok "pnpm installed"
             return
@@ -305,6 +319,34 @@ function Get-SourceCandidates {
     $Candidates | Select-Object -Unique
 }
 
+function Clone-SourceClient {
+    param([string]$ClientName)
+
+    $Repos = @{
+        Vencord = "https://github.com/Vendicated/Vencord.git"
+        Equicord = "https://github.com/Equicord/Equicord.git"
+        Dorian = "https://github.com/SpikeHD/Dorian.git"
+    }
+
+    if (!(Get-Command git -ErrorAction SilentlyContinue)) {
+        throw "$ClientName source was not found, and Git is required to download it. Install Git, then run this installer again."
+    }
+
+    $DefaultPath = Join-Path (Join-Path $env:USERPROFILE "Documents") $ClientName
+    if (Test-Path $DefaultPath) {
+        throw "$ClientName source was not found in a usable folder, but $DefaultPath already exists. Move it, fix it, or pass -SourcePath to the correct $ClientName source folder."
+    }
+
+    $RepoUrl = $Repos[$ClientName]
+    if (!$RepoUrl) {
+        throw "No source repository is configured for $ClientName."
+    }
+
+    Write-Step "Downloading $ClientName source"
+    Invoke-CheckedCommand git clone $RepoUrl $DefaultPath
+    return $DefaultPath
+}
+
 function Select-SourcePath {
     param([string]$ClientName)
 
@@ -338,29 +380,24 @@ function Select-SourcePath {
         }
 
         Write-Warn "No matching $ClientName source folder was found automatically."
-    }
-
-    $Candidates = @(Get-SourceCandidates)
-    if ($Candidates.Count -eq 1) {
-        return $Candidates[0]
-    }
-
-    if ($Candidates.Count -gt 1) {
         Write-Host ""
-        Write-Host "Detected source clients:" -ForegroundColor Cyan
-        for ($i = 0; $i -lt $Candidates.Count; $i++) {
-            Write-Host "[$($i + 1)] $($Candidates[$i])"
+        Write-Host "[1] Download fresh $ClientName source into Documents\\$ClientName"
+        Write-Host "[2] Paste the exact $ClientName source folder path"
+        Write-Host ""
+        $SourceChoice = Read-Host "Enter 1 or 2"
+
+        if ($SourceChoice.Trim() -eq "1") {
+            return Clone-SourceClient -ClientName $ClientName
         }
-        $Choice = Read-Host "Choose a client number"
-        $Index = [int]$Choice - 1
-        if ($Index -ge 0 -and $Index -lt $Candidates.Count) {
-            return $Candidates[$Index]
+
+        if ($SourceChoice.Trim() -ne "2") {
+            throw "Invalid source selection. Run the installer again and choose 1 or 2."
         }
     }
 
-    $Manual = Read-Host "Paste your Vencord, Equicord, or Dorian source folder path"
+    $Manual = Read-Host "Paste your $ClientName source folder path"
     if (!(Test-Path (Join-Path $Manual "package.json"))) {
-        throw "That folder does not look like a source client."
+        throw "That folder does not look like a $ClientName source client."
     }
 
     (Resolve-Path $Manual).Path
@@ -414,12 +451,12 @@ function Install-SourceClient {
         Write-Step "Building client"
         if (!(Test-Path (Join-Path $ClientRoot "node_modules"))) {
             Write-Step "Installing client dependencies"
-            pnpm install --frozen-lockfile
+            Invoke-CheckedCommand pnpm install --frozen-lockfile
         } else {
             Write-Ok "Client dependencies already installed"
         }
 
-        pnpm build
+        Invoke-CheckedCommand pnpm build
 
         if (Test-Path (Join-Path $ClientRoot "dist")) {
             $ActiveDist = Join-Path $ClientDataDir "dist"
@@ -435,7 +472,7 @@ function Install-SourceClient {
         if (!$NoInject -and $CanInject) {
             Stop-Discord
             Write-Step "Reinstalling client into Discord"
-            pnpm inject
+            Invoke-CheckedCommand pnpm inject
             Write-Ok "Client was rebuilt and injected"
         } elseif ($NoInject -and $CanInject) {
             Write-Warn "Build complete. Injection skipped because -NoInject was used."
