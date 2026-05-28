@@ -37,6 +37,7 @@ interface LyricLine {
 
 const Spotify = findByPropsLazy("getPlayerState", "getTrack");
 const HTTP = findByPropsLazy("patch", "get", "post");
+const PresenceStore = findByPropsLazy("getLocalPresence", "getState");
 
 const TICK_MS = 1000;
 const MAX_STATUS_LENGTH = 128;
@@ -61,6 +62,24 @@ interface NormalizedTrack {
     isPlaying: boolean;
 }
 
+interface DiscordActivity {
+    type?: number;
+    name?: string;
+    details?: string;
+    state?: string;
+    sync_id?: string;
+    metadata?: {
+        spotify_id?: string;
+    };
+    assets?: {
+        large_text?: string;
+    };
+    timestamps?: {
+        start?: number;
+        end?: number;
+    };
+}
+
 function cleanText(value: unknown) {
     return String(value ?? "").replace(/\s+/g, " ").trim();
 }
@@ -74,21 +93,57 @@ function trimStatus(value: string) {
 
 function getCurrentTrack(): NormalizedTrack | undefined {
     const track: SpotifyTrack | null = Spotify.getTrack?.() ?? spotifyState?.track ?? null;
-    if (!track) return undefined;
+    if (track) {
+        const playerState = Spotify.getPlayerState?.();
+        const isPlaying = Boolean(playerState?.isPlaying ?? spotifyState?.isPlaying);
+        const position = Number(playerState?.position ?? spotifyState?.position ?? 0);
+        const artists = track.artists?.map(artist => artist.name).filter(Boolean).join(", ") ?? "";
 
-    const playerState = Spotify.getPlayerState?.();
-    const isPlaying = Boolean(playerState?.isPlaying ?? spotifyState?.isPlaying);
-    const position = Number(playerState?.position ?? spotifyState?.position ?? 0);
-    const artists = track.artists?.map(artist => artist.name).filter(Boolean).join(", ") ?? "";
+        return {
+            id: track.id ?? "",
+            title: cleanText(track.name),
+            artist: cleanText(artists),
+            album: cleanText(track.album?.name),
+            durationMs: Number(track.duration || 0),
+            progressMs: Math.max(0, position),
+            isPlaying
+        };
+    }
+
+    return trackFromActivity(getSpotifyActivity());
+}
+
+function getSpotifyActivity(): DiscordActivity | undefined {
+    const localPresence = PresenceStore.getLocalPresence?.()
+        ?? PresenceStore.getState?.()?.localPresence;
+
+    const activities: DiscordActivity[] = localPresence?.activities ?? [];
+    return activities.find(activity => {
+        const name = String(activity?.name ?? "").toLowerCase();
+        return activity?.type === 2 || name === "spotify";
+    });
+}
+
+function trackFromActivity(activity?: DiscordActivity): NormalizedTrack | undefined {
+    if (!activity) return undefined;
+
+    const title = cleanText(activity.details || activity.name);
+    const artist = cleanText(activity.state);
+    if (!title || !artist) return undefined;
+
+    const startedAt = Number(activity.timestamps?.start || 0);
+    const endsAt = Number(activity.timestamps?.end || 0);
+    const durationMs = startedAt && endsAt ? Math.max(0, endsAt - startedAt) : 0;
+    const progressMs = startedAt ? Math.max(0, Date.now() - startedAt) : 0;
 
     return {
-        id: track.id ?? "",
-        title: cleanText(track.name),
-        artist: cleanText(artists),
-        album: cleanText(track.album?.name),
-        durationMs: Number(track.duration || 0),
-        progressMs: Math.max(0, position),
-        isPlaying
+        id: cleanText(activity.sync_id || activity.metadata?.spotify_id),
+        title,
+        artist,
+        album: cleanText(activity.assets?.large_text),
+        durationMs,
+        progressMs,
+        isPlaying: true
     };
 }
 
@@ -175,14 +230,14 @@ function setCustomStatus(text: string) {
     if (status === lastStatus) return;
 
     lastStatus = status;
-    HTTP.patch({
+    void HTTP.patch({
         url: "/users/@me/settings",
         body: {
             custom_status: status
                 ? { text: status, expires_at: null }
                 : null
         }
-    });
+    }).catch((error: unknown) => console.warn("[SpotifyLyricsStatus] Could not update status", error));
 }
 
 function tick() {

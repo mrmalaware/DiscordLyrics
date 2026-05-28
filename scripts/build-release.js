@@ -131,11 +131,15 @@ function createZip(sourceDir, outFile) {
 fs.rmSync(dist, { recursive: true, force: true });
 ensureDir(dist);
 copyFile(path.join(root, "SpotifyLyricsStatus.plugin.js"), path.join(dist, "SpotifyLyricsStatus.plugin.js"));
+copyFile(path.join(root, "scripts", "DiscordLyrics-Installer.ps1"), path.join(dist, "DiscordLyrics-Installer.ps1"));
+copyFile(path.join(root, "scripts", "DiscordLyrics-Installer.cmd"), path.join(dist, "DiscordLyrics-Installer.cmd"));
 copyDir(vencordSource, vencordDist);
 createZip(path.join(dist, "vencord"), path.join(dist, "vencord-spotifyLyricsStatus.zip"));
 ensureDir(packageDir);
 copyFile(path.join(dist, "SpotifyLyricsStatus.plugin.js"), path.join(packageDir, "BetterDiscord", "SpotifyLyricsStatus.plugin.js"));
 copyFile(path.join(dist, "vencord-spotifyLyricsStatus.zip"), path.join(packageDir, "Vencord", "vencord-spotifyLyricsStatus.zip"));
+copyFile(path.join(dist, "DiscordLyrics-Installer.ps1"), path.join(packageDir, "DiscordLyrics-Installer.ps1"));
+copyFile(path.join(dist, "DiscordLyrics-Installer.cmd"), path.join(packageDir, "DiscordLyrics-Installer.cmd"));
 copyFile(path.join(root, "README.md"), path.join(packageDir, "README.md"));
 copyFile(path.join(root, "LICENSE"), path.join(packageDir, "LICENSE"));
 copyFile(path.join(root, "CHANGELOG.md"), path.join(packageDir, "CHANGELOG.md"));
