@@ -26,17 +26,41 @@ function Write-Warn($Text) {
     Write-Host "   $Text" -ForegroundColor Yellow
 }
 
-function Need-Command($Name, $InstallHint) {
-    if (!(Get-Command $Name -ErrorAction SilentlyContinue)) {
-        throw "$Name is required. $InstallHint"
-    }
-}
-
 function Reset-WorkDir {
     if (Test-Path $WorkDir) {
         Remove-Item $WorkDir -Recurse -Force
     }
     New-Item -ItemType Directory -Force $WorkDir | Out-Null
+}
+
+function Ensure-Pnpm {
+    if (Get-Command pnpm -ErrorAction SilentlyContinue) {
+        Write-Ok "pnpm is ready"
+        return
+    }
+
+    Write-Warn "pnpm was not found"
+
+    if (Get-Command corepack -ErrorAction SilentlyContinue) {
+        Write-Step "Installing pnpm with Corepack"
+        corepack enable
+        corepack prepare pnpm@latest --activate
+        if (Get-Command pnpm -ErrorAction SilentlyContinue) {
+            Write-Ok "pnpm installed"
+            return
+        }
+    }
+
+    if (Get-Command npm -ErrorAction SilentlyContinue) {
+        Write-Step "Installing pnpm with npm"
+        npm install -g pnpm
+        if (Get-Command pnpm -ErrorAction SilentlyContinue) {
+            Write-Ok "pnpm installed"
+            return
+        }
+    }
+
+    throw "Node.js is required before source clients can be built. Install Node.js from https://nodejs.org, then run this installer again."
 }
 
 function Download-Release {
@@ -123,7 +147,7 @@ function Select-SourcePath {
 }
 
 function Install-SourceClient {
-    Need-Command "pnpm" "Install Node.js, then run: npm install -g pnpm"
+    Ensure-Pnpm
 
     $ClientRoot = Select-SourcePath
     $PluginZip = Join-Path $PackageDir "Vencord\vencord-spotifyLyricsStatus.zip"
