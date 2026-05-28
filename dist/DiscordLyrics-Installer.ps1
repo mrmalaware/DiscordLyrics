@@ -102,7 +102,43 @@ function Stop-Discord {
     Start-Sleep -Seconds 2
 }
 
+function Test-DiscordRunning {
+    $null -ne (Get-Process -Name "Discord", "DiscordCanary", "DiscordPTB", "DiscordDevelopment" -ErrorAction SilentlyContinue | Select-Object -First 1)
+}
+
+function Start-DiscordProcess {
+    param(
+        [string]$FilePath,
+        [string[]]$ArgumentList = @()
+    )
+
+    if (!(Test-Path $FilePath)) {
+        return $false
+    }
+
+    try {
+        $WorkingDirectory = Split-Path $FilePath -Parent
+        if ($ArgumentList.Count -gt 0) {
+            Start-Process -FilePath $FilePath -WorkingDirectory $WorkingDirectory -ArgumentList $ArgumentList | Out-Null
+        } else {
+            Start-Process -FilePath $FilePath -WorkingDirectory $WorkingDirectory | Out-Null
+        }
+
+        Start-Sleep -Seconds 3
+        return (Test-DiscordRunning)
+    } catch {
+        Write-Warn "Launch attempt failed: $($_.Exception.Message)"
+        Start-Sleep -Seconds 2
+        return (Test-DiscordRunning)
+    }
+}
+
 function Start-Discord {
+    if (Test-DiscordRunning) {
+        Write-Ok "Discord is already open"
+        return
+    }
+
     $ExeCandidates = @(
         (Get-ChildItem (Join-Path $env:LOCALAPPDATA "Discord\app-*") -Filter "Discord.exe" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName),
         (Get-ChildItem (Join-Path $env:LOCALAPPDATA "DiscordCanary\app-*") -Filter "DiscordCanary.exe" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName),
@@ -112,12 +148,12 @@ function Start-Discord {
 
     if ($ExeCandidates.Count -gt 0) {
         Write-Step "Opening Discord"
-        try {
-            Start-Process -FilePath $ExeCandidates[0] | Out-Null
-        } catch {
-            Write-Warn "Discord was installed, but it could not be opened automatically. Open Discord manually."
+        foreach ($Candidate in $ExeCandidates) {
+            if (Start-DiscordProcess -FilePath $Candidate) {
+                Write-Ok "Discord opened"
+                return
+            }
         }
-        return
     }
 
     $UpdateCandidates = @(
@@ -129,15 +165,15 @@ function Start-Discord {
 
     if ($UpdateCandidates.Count -gt 0) {
         Write-Step "Opening Discord"
-        try {
-            Start-Process -FilePath $UpdateCandidates[0] -ArgumentList @("--processStart", "Discord.exe") | Out-Null
-        } catch {
-            Write-Warn "Discord was installed, but it could not be opened automatically. Open Discord manually."
+        foreach ($Candidate in $UpdateCandidates) {
+            if (Start-DiscordProcess -FilePath $Candidate -ArgumentList @("--processStart", "Discord.exe")) {
+                Write-Ok "Discord opened"
+                return
+            }
         }
-        return
     }
 
-    Write-Warn "Discord was installed, but no Discord launcher was found. Open Discord manually."
+    Write-Warn "Discord was installed, but it could not be opened automatically. Open Discord manually."
 }
 
 function Select-InstallTarget {
