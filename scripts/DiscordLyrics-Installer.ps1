@@ -103,20 +103,41 @@ function Stop-Discord {
 }
 
 function Start-Discord {
-    $Candidates = @(
+    $ExeCandidates = @(
+        (Get-ChildItem (Join-Path $env:LOCALAPPDATA "Discord\app-*") -Filter "Discord.exe" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName),
+        (Get-ChildItem (Join-Path $env:LOCALAPPDATA "DiscordCanary\app-*") -Filter "DiscordCanary.exe" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName),
+        (Get-ChildItem (Join-Path $env:LOCALAPPDATA "DiscordPTB\app-*") -Filter "DiscordPTB.exe" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName),
+        (Get-ChildItem (Join-Path $env:LOCALAPPDATA "DiscordDevelopment\app-*") -Filter "DiscordDevelopment.exe" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName)
+    ) | Where-Object { $_ -and (Test-Path $_) }
+
+    if ($ExeCandidates.Count -gt 0) {
+        Write-Step "Opening Discord"
+        try {
+            Start-Process -FilePath $ExeCandidates[0] | Out-Null
+        } catch {
+            Write-Warn "Discord was installed, but it could not be opened automatically. Open Discord manually."
+        }
+        return
+    }
+
+    $UpdateCandidates = @(
         (Join-Path $env:LOCALAPPDATA "Discord\Update.exe"),
         (Join-Path $env:LOCALAPPDATA "DiscordCanary\Update.exe"),
         (Join-Path $env:LOCALAPPDATA "DiscordPTB\Update.exe"),
         (Join-Path $env:LOCALAPPDATA "DiscordDevelopment\Update.exe")
     ) | Where-Object { Test-Path $_ }
 
-    if ($Candidates.Count -gt 0) {
+    if ($UpdateCandidates.Count -gt 0) {
         Write-Step "Opening Discord"
-        Start-Process -FilePath $Candidates[0] -ArgumentList "--processStart Discord.exe" | Out-Null
+        try {
+            Start-Process -FilePath $UpdateCandidates[0] -ArgumentList @("--processStart", "Discord.exe") | Out-Null
+        } catch {
+            Write-Warn "Discord was installed, but it could not be opened automatically. Open Discord manually."
+        }
         return
     }
 
-    Write-Warn "Discord launcher was not found. Open Discord manually."
+    Write-Warn "Discord was installed, but no Discord launcher was found. Open Discord manually."
 }
 
 function Select-InstallTarget {
