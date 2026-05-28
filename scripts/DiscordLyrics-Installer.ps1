@@ -3,7 +3,7 @@ param(
     [string]$Target = "Auto",
     [string]$SourcePath = "",
     [switch]$SkipBuild,
-    [switch]$Inject
+    [switch]$NoInject
 )
 
 $ErrorActionPreference = "Stop"
@@ -89,6 +89,34 @@ function Install-BetterDiscord {
     New-Item -ItemType Directory -Force $PluginDir | Out-Null
     Copy-Item $PluginSource (Join-Path $PluginDir "SpotifyLyricsStatus.plugin.js") -Force
     Write-Ok "Installed BetterDiscord plugin"
+}
+
+function Stop-Discord {
+    $DiscordProcesses = Get-Process -Name "Discord", "DiscordCanary", "DiscordPTB", "DiscordDevelopment" -ErrorAction SilentlyContinue
+    if (!$DiscordProcesses) {
+        return
+    }
+
+    Write-Step "Closing Discord"
+    $DiscordProcesses | Stop-Process -Force
+    Start-Sleep -Seconds 2
+}
+
+function Start-Discord {
+    $Candidates = @(
+        (Join-Path $env:LOCALAPPDATA "Discord\Update.exe"),
+        (Join-Path $env:LOCALAPPDATA "DiscordCanary\Update.exe"),
+        (Join-Path $env:LOCALAPPDATA "DiscordPTB\Update.exe"),
+        (Join-Path $env:LOCALAPPDATA "DiscordDevelopment\Update.exe")
+    ) | Where-Object { Test-Path $_ }
+
+    if ($Candidates.Count -gt 0) {
+        Write-Step "Opening Discord"
+        Start-Process -FilePath $Candidates[0] -ArgumentList "--processStart Discord.exe" | Out-Null
+        return
+    }
+
+    Write-Warn "Discord launcher was not found. Open Discord manually."
 }
 
 function Select-InstallTarget {
@@ -347,12 +375,13 @@ function Install-SourceClient {
 
         $PackageJson = Get-Content "package.json" -Raw
         $CanInject = $PackageJson -match '"inject"\s*:'
-        if ($Inject -and $CanInject) {
-            Write-Step "Injecting client"
+        if (!$NoInject -and $CanInject) {
+            Stop-Discord
+            Write-Step "Reinstalling client into Discord"
             pnpm inject
-        } elseif ($CanInject) {
-            Write-Warn "Build complete. Injection skipped so no extra client installer tools are downloaded."
-            Write-Warn "If this client needs injection, run it from the client source folder yourself: pnpm inject"
+            Write-Ok "Client was rebuilt and injected"
+        } elseif ($NoInject -and $CanInject) {
+            Write-Warn "Build complete. Injection skipped because -NoInject was used."
         } else {
             Write-Warn "No inject script found. Reinstall or inject this client the normal way."
         }
@@ -367,6 +396,7 @@ Download-Release
 $SelectedTarget = if ($Target -eq "Auto") { Select-InstallTarget } else { $Target }
 
 if ($SelectedTarget -eq "BetterDiscord") {
+    Stop-Discord
     Write-Step "Installing BetterDiscord"
     Install-BetterDiscord
 }
@@ -376,5 +406,7 @@ if ($SelectedTarget -in @("Vencord", "Equicord", "Dorian")) {
     Install-SourceClient -ClientName $SelectedTarget
 }
 
+Start-Discord
+
 Write-Host ""
-Write-Host "DiscordLyrics install complete. Restart Discord, then enable SpotifyLyricsStatus." -ForegroundColor Green
+Write-Host "DiscordLyrics install complete. Enable SpotifyLyricsStatus if it is not already enabled." -ForegroundColor Green
