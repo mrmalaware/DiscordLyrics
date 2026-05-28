@@ -7,6 +7,23 @@ set "INSTALLER_PATH=%TEMP%\DiscordLyrics-Installer.ps1"
 echo.
 echo DiscordLyrics Installer
 echo -----------------------
+echo Checking pnpm...
+echo.
+
+where pnpm >nul 2>nul
+if errorlevel 1 (
+    where npm >nul 2>nul
+    if errorlevel 1 (
+        echo Node.js/npm is required for Vencord, Equicord, and Dorian source builds.
+        echo Install Node.js from https://nodejs.org, then run this installer again.
+        goto failed
+    )
+
+    echo pnpm was not found. Installing pnpm...
+    call npm install -g pnpm
+    if errorlevel 1 goto failed
+)
+
 echo Downloading installer...
 echo.
 
