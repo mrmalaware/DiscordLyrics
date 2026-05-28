@@ -44,6 +44,9 @@ function Download-Release {
     $Url = "https://github.com/$Repo/releases/latest/download/DiscordLyrics-release.zip"
     Invoke-WebRequest -UseBasicParsing -Uri $Url -OutFile $ReleaseZip
     Expand-Archive -Path $ReleaseZip -DestinationPath $WorkDir -Force
+    if (!(Test-Path $PackageDir) -and (Test-Path (Join-Path $WorkDir "BetterDiscord"))) {
+        $script:PackageDir = $WorkDir
+    }
     if (!(Test-Path $PackageDir)) {
         throw "Release package did not contain the expected package folder."
     }
