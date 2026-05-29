@@ -2,6 +2,7 @@
   <img src="assets/discordlyrics-bg.png" alt="DiscordLyrics by MallyDev2" width="100%">
 </p>
 
+
 <h1 align="center">DiscordLyrics</h1>
 
 <p align="center">
